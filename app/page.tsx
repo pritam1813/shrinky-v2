@@ -1,7 +1,9 @@
+import Shortener from "@/components/Shortener";
+
 export default function Home() {
   return (
     <main>
-      <h1>Main Page</h1>
+      <Shortener />
     </main>
   );
 }
