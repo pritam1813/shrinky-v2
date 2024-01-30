@@ -16,3 +16,10 @@ model users {
   password  String
   updatedAt DateTime @db.Date
 }
+
+model Url {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  originalUrl String
+  shortUrl    String   @unique
+  createdAt   DateTime @db.Date
+}
