@@ -2,6 +2,15 @@ import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
 
+export async function GET() {
+  try {
+    const urls = await prisma.Url.findMany();
+    return NextResponse.json(urls, { status: 200 });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { longUrl } = await req.json();
