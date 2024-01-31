@@ -21,8 +21,17 @@ const Shortener = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof ShortenerSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof ShortenerSchema>) => {
+    const result = await fetch("/api/urls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ longUrl: data.url }),
+    });
+
+    console.log(result);
   };
 
   return (
