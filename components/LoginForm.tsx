@@ -16,6 +16,7 @@ import { Input } from "./ui/input";
 import Link from "next/link";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 
 const loginFormSchema = z.object({
   email: z.string().email(),
@@ -32,8 +33,23 @@ const loginForm = () => {
       rememberMe: false,
     },
   });
-  const onSubmit = (data: z.infer<typeof loginFormSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
+    try {
+      const result = await signIn("credentials", {
+        ...data,
+        callbackUrl: "/",
+        redirect: false,
+      });
+
+      if (result!.error) {
+        form.setError("root", {
+          type: "manual",
+          message: "Invalid Credentials. Pleas try again !",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -48,6 +64,13 @@ const loginForm = () => {
                 className="space-y-4 md:space-y-6"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
+                {form.formState.errors.root && (
+                  <div className="w-full border border-red-500 rounded-lg bg-red-50 p-2.5">
+                    <FormMessage className="text-red-500">
+                      {form.formState.errors.root.message}
+                    </FormMessage>
+                  </div>
+                )}
                 <FormField
                   control={form.control}
                   name="email"
