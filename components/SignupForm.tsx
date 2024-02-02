@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const signupFormSchema = z
   .object({
+    name: z.string().min(3, { message: "Should be atleast 3 characters" }),
     email: z.string().email(),
     password: z.string().min(8, {
       message: "Password must be at least 8 characters",
@@ -35,15 +36,38 @@ const SignupForm = () => {
   const form = useForm<z.infer<typeof signupFormSchema>>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
       terms: false,
     },
   });
-  const onSubmit = (data: z.infer<typeof signupFormSchema>) => {
-    console.log(form.getValues("terms"));
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof signupFormSchema>) => {
+    try {
+      const result = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const response = await result.json();
+      if (response.status > 201) {
+        form.setError("root", {
+          type: "manual",
+          message: response.message,
+        });
+        //form.formState.isSubmitSuccessful = false;
+      } else {
+        form.reset();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log(form.formState.isSubmitSuccessful);
+    }
   };
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -58,6 +82,41 @@ const SignupForm = () => {
                 className="space-y-4 md:space-y-6"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
+                {form.formState.errors.root && (
+                  <div className="w-full border border-red-500 rounded-lg bg-red-50 p-2.5">
+                    <FormMessage className="text-red-500">
+                      {form.formState.errors.root.message}
+                    </FormMessage>
+                  </div>
+                )}
+                {form.formState.isSubmitSuccessful && (
+                  <div className="w-full border border-green-500 rounded-lg bg-green-50 p-2.5">
+                    <FormMessage className="text-green-500">
+                      SignUp Successful. Please Login.
+                    </FormMessage>
+                  </div>
+                )}
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Name
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          placeholder="John Doe"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -154,9 +213,12 @@ const SignupForm = () => {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={form.getValues("terms") == false}
+                  disabled={
+                    form.getValues("terms") == false ||
+                    form.formState.isSubmitting
+                  }
                 >
-                  Create an account
+                  {form.formState.isSubmitting ? "Loading..." : "Sign Up"}
                 </Button>
 
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
