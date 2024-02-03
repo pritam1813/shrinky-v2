@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
+import spinner from "../public/spinner.svg";
 import {
   Form,
   FormControl,
@@ -17,11 +17,11 @@ import Link from "next/link";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 const loginFormSchema = z.object({
   email: z.string().email(),
   password: z.string(),
-  rememberMe: z.boolean().optional(),
 });
 
 const loginForm = () => {
@@ -30,7 +30,6 @@ const loginForm = () => {
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false,
     },
   });
   const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
@@ -111,32 +110,20 @@ const loginForm = () => {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <FormItem className="flex items-start">
-                      <FormControl>
-                        <div className="flex items-center h-5">
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            aria-describedby="rememberme"
-                            className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                          />
-                        </div>
-                      </FormControl>
-                      <div className="ml-3 !mt-0 text-sm">
-                        <FormLabel className="font-light text-gray-500 dark:text-gray-300">
-                          Remember Me
-                        </FormLabel>
-                      </div>
-                    </FormItem>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <Image
+                      src={spinner}
+                      alt="spinner widget"
+                      className="text-white"
+                    />
+                  ) : (
+                    "Sign In"
                   )}
-                />
-
-                <Button type="submit" className="w-full">
-                  Sign In
                 </Button>
 
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">

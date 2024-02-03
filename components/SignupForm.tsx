@@ -3,6 +3,8 @@
 import React from "react";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
+import spinner from "../public/spinner.svg";
+import Image from "next/image";
 import {
   Form,
   FormControl,
@@ -218,7 +220,15 @@ const SignupForm = () => {
                     form.formState.isSubmitting
                   }
                 >
-                  {form.formState.isSubmitting ? "Loading..." : "Sign Up"}
+                  {form.formState.isSubmitting ? (
+                    <Image
+                      src={spinner}
+                      alt="spinner widget"
+                      className="text-white"
+                    />
+                  ) : (
+                    "Sign Up"
+                  )}
                 </Button>
 
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">

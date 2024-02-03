@@ -10,7 +10,6 @@ const handler = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        rememberMe: { label: "Remember Me", type: "checkbox" },
       },
 
       async authorize(credentials, req) {
@@ -25,7 +24,7 @@ const handler = NextAuth({
           if (!match) {
             return null;
           }
-          delete user.password;
+          user.password = "";
           return user;
         } else {
           // If you return null then an error will be displayed advising the user to check their details.
