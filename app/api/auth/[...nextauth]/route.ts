@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/prisma/client";
+import { compare } from "bcrypt";
 
 const handler = NextAuth({
   providers: [
@@ -20,9 +21,11 @@ const handler = NextAuth({
         });
 
         if (user) {
-          if (user.password !== credentials?.password) {
+          const match = await compare(credentials!.password, user.password);
+          if (!match) {
             return null;
           }
+          delete user.password;
           return user;
         } else {
           // If you return null then an error will be displayed advising the user to check their details.

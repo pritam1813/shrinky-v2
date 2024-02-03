@@ -37,14 +37,13 @@ const loginForm = () => {
     try {
       const result = await signIn("credentials", {
         ...data,
-        callbackUrl: "/",
         redirect: false,
       });
 
       if (result!.error) {
         form.setError("root", {
           type: "manual",
-          message: "Invalid Credentials. Pleas try again !",
+          message: "Invalid Credentials. Please try again !",
         });
       }
     } catch (error) {
