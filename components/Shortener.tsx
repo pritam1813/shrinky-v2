@@ -8,12 +8,27 @@ import { Input } from "./ui/input";
 import Link from "next/link";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import spinner from "../public/spinner.svg";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { User as NextAuthUser } from "next-auth";
+import Image from "next/image";
+
+interface User extends NextAuthUser {
+  id: string;
+}
 
 const ShortenerSchema = z.object({
   url: z.string().url("Not a Valid Url"),
 });
 
 const Shortener = () => {
+  const { status, data } = useSession();
+
+  if (status === "unauthenticated") {
+    redirect("/");
+  }
+
   const form = useForm<z.infer<typeof ShortenerSchema>>({
     resolver: zodResolver(ShortenerSchema),
     defaultValues: {
@@ -21,14 +36,14 @@ const Shortener = () => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof ShortenerSchema>) => {
+  const onSubmit = async (formData: z.infer<typeof ShortenerSchema>) => {
+    const user = data?.user as User;
     const result = await fetch("/api/urls", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
       },
-      body: JSON.stringify({ longUrl: data.url }),
+      body: JSON.stringify({ longUrl: formData.url, userId: user.id }),
     });
 
     console.log(result);
@@ -62,8 +77,16 @@ const Shortener = () => {
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Generate
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <Image src={spinner} alt="spinner" className="text-white" />
+              ) : (
+                "Generate"
+              )}
             </Button>
 
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">

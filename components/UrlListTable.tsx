@@ -14,6 +14,7 @@ interface UrlList {
   shortUrl: string;
   originalUrl: string;
   createdAt: Date;
+  clicks: number;
 }
 
 const UrlListTable = () => {
@@ -49,7 +50,7 @@ const UrlListTable = () => {
                 year: "numeric",
               })}
             </TableCell>
-            <TableCell>2</TableCell>
+            <TableCell>{item.clicks}</TableCell>
             <TableCell>Edit</TableCell>
           </TableRow>
         ))}

@@ -7,11 +7,12 @@ export async function GET(
 ) {
   try {
     const { shortId } = params;
-    const url = await prisma.Url.findUnique({
+    const url = await prisma.url.findUnique({
       where: {
         shortUrl: shortId,
       },
     });
+
     return NextResponse.json(url, { status: 200 });
   } catch (error) {
     console.log(error);

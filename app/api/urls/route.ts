@@ -4,7 +4,7 @@ import { customAlphabet } from "nanoid";
 
 export async function GET() {
   try {
-    const urls = await prisma.Url.findMany();
+    const urls = await prisma.url.findMany();
     return NextResponse.json(urls, { status: 200 });
   } catch (error) {
     console.log(error);
@@ -13,14 +13,16 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { longUrl } = await req.json();
+    const { longUrl, userId } = await req.json();
 
     const nanoid = customAlphabet(`${process.env.CUSTOM_ALPHABET_STRING}`, 7);
 
-    const shorturl = await prisma.Url.create({
+    const shorturl = await prisma.url.create({
       data: {
         originalUrl: longUrl,
         shortUrl: nanoid(),
+        clicks: 0,
+        users: { connect: { id: userId } },
       },
     });
 
