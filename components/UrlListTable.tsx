@@ -9,6 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import { useSession } from "next-auth/react";
+import { User as NextAuthUser } from "next-auth";
+
+interface User extends NextAuthUser {
+  id: string;
+}
 
 interface UrlList {
   shortUrl: string;
@@ -18,12 +24,14 @@ interface UrlList {
 }
 
 const UrlListTable = () => {
-  const [data, setData] = useState<UrlList[]>([]);
+  const [list, setList] = useState<UrlList[]>([]);
+  const { data } = useSession();
+  const user = data?.user as User;
 
   useEffect(() => {
-    fetch("/api/urls")
+    fetch(`/api/users/urls/${user.id}`)
       .then((response) => response.json())
-      .then((data) => setData(data));
+      .then((data) => setList(data));
   }, []);
 
   return (
@@ -39,7 +47,7 @@ const UrlListTable = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((item, index) => (
+        {list.map((item, index) => (
           <TableRow key={index}>
             <TableCell>{item.shortUrl}</TableCell>
             <TableCell>{item.originalUrl}</TableCell>
