@@ -51,8 +51,12 @@ interface UrlList {
   clicks: number;
 }
 
-const UrlListTable = () => {
-  const [list, setList] = useState<UrlList[]>([]);
+interface UrlListProps {
+  list: UrlList[];
+  setList: React.Dispatch<React.SetStateAction<UrlList[]>>;
+}
+
+const UrlListTable = ({ list, setList }: UrlListProps) => {
   const { status, data } = useSession();
   const [isCopied, setCopied] = useState<boolean[]>([]);
   const user = data?.user as User;

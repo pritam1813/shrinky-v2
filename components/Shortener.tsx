@@ -21,7 +21,20 @@ const ShortenerSchema = z.object({
   url: z.string().url("Not a Valid Url"),
 });
 
-const Shortener = () => {
+interface UrlList {
+  id: string;
+  shortUrl: string;
+  originalUrl: string;
+  createdAt: Date;
+  clicks: number;
+}
+
+interface UrlListProps {
+  list: UrlList[];
+  setList: React.Dispatch<React.SetStateAction<UrlList[]>>;
+}
+
+const Shortener = ({ list, setList }: UrlListProps) => {
   const { status, data } = useSession();
 
   if (status === "unauthenticated") {
@@ -44,8 +57,9 @@ const Shortener = () => {
       },
       body: JSON.stringify({ longUrl: formData.url, userId: user.id }),
     });
-
-    console.log(result);
+    form.reset();
+    const newUrl = await result.json();
+    setList([...list, newUrl]);
   };
 
   return (
