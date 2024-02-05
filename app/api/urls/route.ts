@@ -31,3 +31,22 @@ export async function POST(req: NextRequest) {
     console.log(error);
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { id, newUrl } = await req.json();
+
+    await prisma.url.update({
+      where: { id },
+      data: {
+        originalUrl: newUrl,
+      },
+    });
+    return NextResponse.json({
+      status: 200,
+      message: "Url Updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -18,3 +18,20 @@ export async function GET(
     console.log(error);
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const pathname = req.nextUrl.pathname;
+    const id = pathname.split("/")[3];
+
+    await prisma.url.delete({
+      where: { id },
+    });
+    return NextResponse.json({
+      status: 200,
+      message: "Url deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
