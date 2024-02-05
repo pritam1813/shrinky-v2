@@ -25,8 +25,10 @@ interface UrlList {
 
 const UrlListTable = () => {
   const [list, setList] = useState<UrlList[]>([]);
-  const { data } = useSession();
+  const { status, data } = useSession();
   const user = data?.user as User;
+
+  if (status === "unauthenticated") return null;
 
   useEffect(() => {
     fetch(`/api/users/urls/${user.id}`)
