@@ -11,6 +11,14 @@ import {
 } from "./ui/table";
 import { useSession } from "next-auth/react";
 import { User as NextAuthUser } from "next-auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface User extends NextAuthUser {
   id: string;
@@ -26,6 +34,7 @@ interface UrlList {
 const UrlListTable = () => {
   const [list, setList] = useState<UrlList[]>([]);
   const { status, data } = useSession();
+  const [isCopied, setCopied] = useState<boolean[]>([]);
   const user = data?.user as User;
 
   if (status === "unauthenticated") return null;
@@ -33,8 +42,28 @@ const UrlListTable = () => {
   useEffect(() => {
     fetch(`/api/users/urls/${user.id}`)
       .then((response) => response.json())
-      .then((data) => setList(data));
+      .then((data) => {
+        setList(data);
+        setCopied(new Array(data.length).fill(false));
+      });
   }, []);
+
+  const copyToClipboard = (index: number) => {
+    navigator.clipboard.writeText(list[index].shortUrl);
+    setCopied((prevState) => {
+      const newState = [...prevState];
+      newState[index] = true;
+      return newState;
+    });
+    setTimeout(() => {
+      // Reset the icon after 3 seconds
+      setCopied((prevState) => {
+        const newState = [...prevState];
+        newState[index] = false;
+        return newState;
+      });
+    }, 3000);
+  };
 
   return (
     <Table>
@@ -51,8 +80,26 @@ const UrlListTable = () => {
       <TableBody>
         {list.map((item, index) => (
           <TableRow key={index}>
-            <TableCell>{item.shortUrl}</TableCell>
-            <TableCell>{item.originalUrl}</TableCell>
+            <TableCell className="flex">
+              {item.shortUrl}
+
+              <button onClick={() => copyToClipboard(index)}>
+                <FontAwesomeIcon
+                  icon={isCopied[index] ? faCheck : faCopy}
+                  className="ml-2"
+                />
+              </button>
+            </TableCell>
+            <TableCell>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    {`${item.originalUrl.substring(0, 20)}.....`}
+                  </TooltipTrigger>
+                  <TooltipContent>{item.originalUrl}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </TableCell>
             <TableCell>
               {new Date(item.createdAt).toLocaleDateString("en-GB", {
                 day: "numeric",
