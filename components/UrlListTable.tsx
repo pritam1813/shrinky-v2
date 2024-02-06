@@ -38,6 +38,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { z } from "zod";
 
 interface User extends NextAuthUser {
   id: string;
@@ -59,6 +60,8 @@ interface UrlListProps {
 const UrlListTable = ({ list, setList }: UrlListProps) => {
   const { status, data } = useSession();
   const [isCopied, setCopied] = useState<boolean[]>([]);
+  const [editUrlError, setEditUrlError] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
   const user = data?.user as User;
 
   if (status === "unauthenticated") return null;
@@ -90,6 +93,15 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
   };
 
   const updateUrl = (id: string, newUrl: string) => {
+    const urlSchema = z.string().url();
+    const { success } = urlSchema.safeParse(newUrl);
+    if (!success) {
+      setOpenDialog(true);
+      setEditUrlError("Not A Valid Url");
+      return;
+    }
+    setEditUrlError("");
+    setTimeout(() => setOpenDialog(false), 500);
     fetch(`/api/urls/`, {
       method: "PUT",
       headers: {
@@ -138,8 +150,7 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
         {list.map((item, index) => (
           <TableRow key={index}>
             <TableCell className="flex justify-center">
-              {item.shortUrl}
-
+              {`${process.env.NEXT_PUBLIC_SITE_URL}/${item.shortUrl}`}
               <button onClick={() => copyToClipboard(index)}>
                 <FontAwesomeIcon
                   icon={isCopied[index] ? faCheck : faCopy}
@@ -167,7 +178,7 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
             <TableCell>{item.clicks}</TableCell>
             <TableCell className="flex justify-center space-x-4">
               {/* Update Button */}
-              <Dialog>
+              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
                     <FontAwesomeIcon icon={faEdit} />
@@ -190,10 +201,15 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
                         defaultValue={item.originalUrl}
                         className="col-span-3"
                       />
+                      {editUrlError && (
+                        <p className="col-span-3 text-red-500">
+                          {editUrlError}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <DialogFooter>
-                    <DialogClose
+                    <Button
                       onClick={() => {
                         const inputElement = document.getElementById(
                           `name${index}`
@@ -204,10 +220,9 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
                           updateUrl(item.id, newUrl);
                         }
                       }}
-                      className="h-10 px-4 py-2 bg-slate-900 text-slate-50 hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
                     >
                       Save Changes
-                    </DialogClose>
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

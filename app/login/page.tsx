@@ -11,7 +11,11 @@ const Login = () => {
     redirect("/");
   }
 
-  return <LoginForm />;
+  return (
+    <section className="bg-gray-50 dark:bg-gray-900">
+      <LoginForm />
+    </section>
+  );
 };
 
 export default Login;
