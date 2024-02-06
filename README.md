@@ -28,11 +28,11 @@ git clone https://github.com/yourusername/shrinky.git
 ```
 2. Install packages
 ``` 
-Yarn 
+yarn 
 ```
 3. Start the development server
 ```
-Yarn dev
+yarn dev
 ```
 
 ### Deployment
