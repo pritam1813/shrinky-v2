@@ -152,7 +152,7 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
         {list.map((item, index) => (
           <TableRow key={index}>
             <TableCell className="flex justify-center">
-              {`${process.env.NEXT_PUBLIC_SITE_URL}/${item.shortUrl}`}
+              {`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/${item.shortUrl}`}
               <button onClick={() => copyToClipboard(index)}>
                 <FontAwesomeIcon
                   icon={isCopied[index] ? faCheck : faCopy}
