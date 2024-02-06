@@ -24,7 +24,7 @@ const loginFormSchema = z.object({
   password: z.string(),
 });
 
-const loginForm = () => {
+const LoginForm = () => {
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -126,7 +126,7 @@ const loginForm = () => {
               </Button>
 
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Don't have an account ?{" "}
+                Don&apos;t have an account ?{" "}
                 <Link
                   href={"/signup"}
                   className="font-medium text-primary-600 hover:underline dark:text-primary-500"
@@ -142,4 +142,4 @@ const loginForm = () => {
   );
 };
 
-export default loginForm;
+export default LoginForm;

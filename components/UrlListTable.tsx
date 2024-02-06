@@ -64,8 +64,6 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
   const [openDialog, setOpenDialog] = useState(false);
   const user = data?.user as User;
 
-  if (status === "unauthenticated") return null;
-
   useEffect(() => {
     fetch(`/api/users/urls/${user.id}`)
       .then((response) => response.json())
@@ -73,7 +71,11 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
         setList(data);
         setCopied(new Array(data.length).fill(false));
       });
-  }, []);
+  }, [status, user.id, setList]);
+
+  if (status === "unauthenticated") {
+    return null;
+  }
 
   const copyToClipboard = (index: number) => {
     navigator.clipboard.writeText(list[index].shortUrl);
