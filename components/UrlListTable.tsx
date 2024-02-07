@@ -39,6 +39,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { z } from "zod";
+import LoadingUI from "./Loading";
 
 interface User extends NextAuthUser {
   id: string;
@@ -63,6 +64,7 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
   const [editUrlError, setEditUrlError] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const user = data?.user as User;
+  const siteURL = process.env.NEXT_PUBLIC_SITE_URL;
 
   useEffect(() => {
     fetch(`/api/users/urls/${user.id}`)
@@ -78,7 +80,7 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
   }
 
   const copyToClipboard = (index: number) => {
-    navigator.clipboard.writeText(list[index].shortUrl);
+    navigator.clipboard.writeText(`${siteURL}/${list[index].shortUrl}`);
     setCopied((prevState) => {
       const newState = [...prevState];
       newState[index] = true;
@@ -152,7 +154,7 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
         {list.map((item, index) => (
           <TableRow key={index}>
             <TableCell className="flex justify-center">
-              {`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/${item.shortUrl}`}
+              {`${siteURL}/${item.shortUrl}`}
               <button onClick={() => copyToClipboard(index)}>
                 <FontAwesomeIcon
                   icon={isCopied[index] ? faCheck : faCopy}
