@@ -5,7 +5,11 @@ export async function GET(req: NextRequest) {
   try {
     const pathname = req.nextUrl.pathname;
     const shortUrl = pathname.split("/")[1];
-
+    if (shortUrl === "login") {
+      return NextResponse.redirect(new URL("/", req.url), {
+        status: 307,
+      });
+    }
     let url = await prisma.url.findUnique({
       where: { shortUrl },
     });

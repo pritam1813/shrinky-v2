@@ -1,17 +1,14 @@
-import Image from "next/image";
 import React from "react";
-import MainSpinner from "../public/LoadingPageSpinner.svg";
+import LoadingUI from "@/components/Loading";
 
-const LodingUI = () => {
+const LoadingPage = () => {
   return (
-    <div className="w-full h-screen flex justify-center align-middle">
-      <Image
-        src={MainSpinner}
-        alt="Main Loading Screen Image"
-        className="w-[24px] h-[24px]"
-      />
-    </div>
+    <section className="bg-gray-50 dark:bg-gray-900">
+      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+        <LoadingUI />
+      </div>
+    </section>
   );
 };
 
-export default LodingUI;
+export default LoadingPage;

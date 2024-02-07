@@ -3,7 +3,9 @@ import { useSession } from "next-auth/react";
 import Shortener from "@/components/Shortener";
 import UrlListTable from "@/components/UrlListTable";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+
+import LoginForm from "@/components/LoginForm";
+import LoadingUI from "@/components/Loading";
 
 interface UrlList {
   id: string;
@@ -17,15 +19,21 @@ export default function Home() {
   const { status } = useSession();
   const [list, setList] = useState<UrlList[]>([]);
 
-  if (status === "unauthenticated") {
-    redirect("/login");
-  }
-
   return (
     <main>
       <section className="bg-gray-50 dark:bg-gray-900">
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-[70vh] lg:py-0">
-          <Shortener list={list} setList={setList} />
+        <div
+          className={`flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0 ${
+            status === "unauthenticated" ? "md:h-screen" : "md:h-[70vh]"
+          }`}
+        >
+          {status === "loading" ? (
+            <LoadingUI />
+          ) : status === "authenticated" ? (
+            <Shortener list={list} setList={setList} />
+          ) : (
+            <LoginForm />
+          )}
         </div>
       </section>
 
