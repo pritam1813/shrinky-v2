@@ -35,11 +35,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { z } from "zod";
-import LoadingUI from "./Loading";
 
 interface User extends NextAuthUser {
   id: string;
@@ -151,116 +151,120 @@ const UrlListTable = ({ list, setList }: UrlListProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {list.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell className="flex justify-center">
-              {`${siteURL}/${item.shortUrl}`}
-              <button onClick={() => copyToClipboard(index)}>
-                <FontAwesomeIcon
-                  icon={isCopied[index] ? faCheck : faCopy}
-                  className="ml-2"
-                />
-              </button>
-            </TableCell>
-            <TableCell>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    {`${item.originalUrl.substring(0, 20)}.....`}
-                  </TooltipTrigger>
-                  <TooltipContent>{item.originalUrl}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </TableCell>
-            <TableCell>
-              {new Date(item.createdAt).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}
-            </TableCell>
-            <TableCell>{item.clicks}</TableCell>
-            <TableCell className="flex justify-center space-x-4">
-              {/* Update Button */}
-              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <FontAwesomeIcon icon={faEdit} />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Edit Url</DialogTitle>
-                    <DialogDescription>
-                      Edit your Original URL Here
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor={`name${index}`} className="text-right">
-                        Original Url
-                      </Label>
-                      <Input
-                        id={`name${index}`}
-                        defaultValue={item.originalUrl}
-                        className="col-span-3"
-                      />
-                      {editUrlError && (
-                        <p className="col-span-3 text-red-500">
-                          {editUrlError}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      onClick={() => {
-                        const inputElement = document.getElementById(
-                          `name${index}`
-                        );
-                        if (inputElement) {
-                          const newUrl = (inputElement as HTMLInputElement)
-                            .value;
-                          updateUrl(item.id, newUrl);
-                        }
-                      }}
-                    >
-                      Save Changes
+        {status === "loading" ? (
+          <Skeleton className="h-4 w-full" />
+        ) : (
+          list.map((item, index) => (
+            <TableRow key={index}>
+              <TableCell className="flex justify-center">
+                {`${siteURL}/${item.shortUrl}`}
+                <button onClick={() => copyToClipboard(index)}>
+                  <FontAwesomeIcon
+                    icon={isCopied[index] ? faCheck : faCopy}
+                    className="ml-2"
+                  />
+                </button>
+              </TableCell>
+              <TableCell>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {`${item.originalUrl.substring(0, 20)}.....`}
+                    </TooltipTrigger>
+                    <TooltipContent>{item.originalUrl}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableCell>
+              <TableCell>
+                {new Date(item.createdAt).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </TableCell>
+              <TableCell>{item.clicks}</TableCell>
+              <TableCell className="flex justify-center space-x-4">
+                {/* Update Button */}
+                <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <FontAwesomeIcon icon={faEdit} />
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Edit Url</DialogTitle>
+                      <DialogDescription>
+                        Edit your Original URL Here
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor={`name${index}`} className="text-right">
+                          Original Url
+                        </Label>
+                        <Input
+                          id={`name${index}`}
+                          defaultValue={item.originalUrl}
+                          className="col-span-3"
+                        />
+                        {editUrlError && (
+                          <p className="col-span-3 text-red-500">
+                            {editUrlError}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        onClick={() => {
+                          const inputElement = document.getElementById(
+                            `name${index}`
+                          );
+                          if (inputElement) {
+                            const newUrl = (inputElement as HTMLInputElement)
+                              .value;
+                            updateUrl(item.id, newUrl);
+                          }
+                        }}
+                      >
+                        Save Changes
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
 
-              {/* Delete button */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <FontAwesomeIcon icon={faRemove} />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Confirm Deletion</DialogTitle>
-                    <DialogDescription>
-                      Warning !! Link redirects for URL{" "}
-                      {`${process.env.NEXT_PUBLIC_SITE_URL}/${item.shortUrl}`}{" "}
-                      will stop working
-                    </DialogDescription>
-                  </DialogHeader>
+                {/* Delete button */}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <FontAwesomeIcon icon={faRemove} />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Confirm Deletion</DialogTitle>
+                      <DialogDescription>
+                        Warning !! Link redirects for URL{" "}
+                        {`${process.env.NEXT_PUBLIC_SITE_URL}/${item.shortUrl}`}{" "}
+                        will stop working
+                      </DialogDescription>
+                    </DialogHeader>
 
-                  <DialogFooter>
-                    <DialogClose
-                      onClick={() => deleteUrl(item.id)}
-                      className="h-10 px-4 py-2 bg-slate-900 text-slate-50 hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
-                    >
-                      Delete Anyway
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </TableCell>
-          </TableRow>
-        ))}
+                    <DialogFooter>
+                      <DialogClose
+                        onClick={() => deleteUrl(item.id)}
+                        className="h-10 px-4 py-2 bg-slate-900 text-slate-50 hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
+                      >
+                        Delete Anyway
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
       </TableBody>
     </Table>
   );
