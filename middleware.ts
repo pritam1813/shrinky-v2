@@ -6,4 +6,4 @@ export function middleware(request: NextRequest) {
   return NextResponse.redirect(new URL("/login", request.url));
 }
 
-export const config = { matcher: ["/api/:path*"] };
+export const config = { matcher: ["/api/urls", "/api/users"] };
