@@ -6,7 +6,10 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession();
     if (!session) {
-      return NextResponse.json({ message: "You must be logged in." });
+      return NextResponse.json({
+        status: 401,
+        message: "You must be logged in.",
+      });
     }
 
     const pathname = req.nextUrl.pathname;

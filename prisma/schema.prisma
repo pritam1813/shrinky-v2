@@ -8,13 +8,14 @@ datasource db {
 }
 
 model url {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime @default(now())
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime   @default(now())
   originalUrl String
-  shortUrl    String   @unique
+  shortUrl    String     @unique
   clicks      Int
-  users       users?   @relation(fields: [usersId], references: [id])
-  usersId     String?  @db.ObjectId
+  users       users?     @relation(fields: [usersId], references: [id])
+  usersId     String?    @db.ObjectId
+  locations   location[]
 }
 
 model users {
@@ -25,4 +26,12 @@ model users {
   password  String
   updatedAt DateTime @updatedAt
   urls      url[]
+}
+
+model location {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  country String
+  clicks  Int
+  url     url    @relation(fields: [urlId], references: [id])
+  urlId   String @db.ObjectId
 }
